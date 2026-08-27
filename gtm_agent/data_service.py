@@ -22,6 +22,13 @@ __all__ = [
 # Built prospect profiles are cached in memory (keyed by prospect_id) so repeat
 # lookups within a run are served without rebuilding.
 _PROFILES = {}
+SENSITIVE_PROSPECT_FIELDS = {"billing_qualification"}
+
+
+def _redact(record):
+    "Return a shallow copy of a prospect record without sensitive fields."
+    return {key: value for key, value in record.items()
+            if key not in SENSITIVE_PROSPECT_FIELDS}
 
 # ---------------------------------------------------------------------------
 # Public data-access functions
@@ -33,7 +40,8 @@ def get_offering(offering_id):
 
 def get_prospect_record(prospect_id):
     "Return the source prospect record for prospect_id, or None if not found."
-    return PROSPECTS.get(prospect_id)
+    record = PROSPECTS.get(prospect_id)
+    return None if record is None else _redact(record)
 
 
 def get_rep(rep):
