@@ -57,8 +57,12 @@ def build_prospect_profile(prospect_id: str) -> dict:
     if rec is None:
         return {"prospect_profile": None, "found": False}
     built = {
-        "prospect_id": prospect_id,
-        **rec,
+        "prospect_id": rec.get("prospect_id", prospect_id),
+        "name": rec.get("name"),
+        "email": rec.get("email"),
+        "annual_revenue": rec.get("annual_revenue"),
+        "enrichment_source": rec.get("enrichment_source"),
+        "disqualified": rec.get("disqualified"),
         "engagement_history": data_service.fetch_engagement_history(prospect_id),
         "account_details": data_service.fetch_account_details(prospect_id),
         "tech_stack": data_service.fetch_tech_stack(prospect_id),
@@ -128,12 +132,13 @@ def get_prospect(prospect_id: str) -> dict:
     record = data_service.get_prospect_record(prospect_id)
     if record is None:
         return {"prospect": None, "found": False}
-    # Carry the contact fields through, dropping the bulky enrichment blobs the
-    # caller can pull from build_prospect_profile instead.
     contact = {
-        "prospect_id": prospect_id,
-        **{k: v for k, v in record.items()
-           if k not in ("engagement_history", "account_details", "tech_stack")},
+        "prospect_id": record.get("prospect_id", prospect_id),
+        "name": record.get("name"),
+        "email": record.get("email"),
+        "annual_revenue": record.get("annual_revenue"),
+        "enrichment_source": record.get("enrichment_source"),
+        "disqualified": record.get("disqualified"),
     }
     return {"prospect": contact, "found": True}
 
