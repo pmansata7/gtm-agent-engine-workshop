@@ -80,4 +80,13 @@ def update_prospect_info(prospect_id, technology):
     tech_stack = list(record["tech_stack"])
     if technology not in tech_stack:
         tech_stack.append(technology)
-    return {"updated": True, "found": True, "tech_stack": tech_stack}
+    record["tech_stack"] = tech_stack
+    _PROFILES.pop(prospect_id, None)
+    saved_tech_stack = fetch_tech_stack(prospect_id)
+    if technology not in saved_tech_stack:
+        return {
+            "updated": False,
+            "found": True,
+            "error": f"tech stack update for {prospect_id} did not persist",
+        }
+    return {"updated": True, "found": True, "tech_stack": saved_tech_stack}
